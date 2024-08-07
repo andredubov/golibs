@@ -15,3 +15,5 @@ get-deps:
 	go get -u github.com/georgysavva/scany/pgxscan
 	go get -u github.com/pkg/errors
 	
+gen-mocks:
+	go generate ./...
