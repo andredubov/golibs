@@ -7,18 +7,18 @@ import (
 
 	"github.com/andredubov/golibs/pkg/client/cache"
 	"github.com/andredubov/golibs/pkg/config"
-	"github.com/gomodule/redigo/redis"
+	redigo "github.com/gomodule/redigo/redis"
 )
 
-type handler func(ctx context.Context, conn redis.Conn) error
+type handler func(ctx context.Context, conn redigo.Conn) error
 
 type rd struct {
-	connectionPool *redis.Pool
+	connectionPool *redigo.Pool
 	config         config.RedisConfig
 }
 
 // NewCache returns a new instance of redis struct
-func NewCache(connectionPool *redis.Pool, config config.RedisConfig) cache.Cache {
+func NewCache(connectionPool *redigo.Pool, config config.RedisConfig) cache.Cache {
 	return &rd{
 		connectionPool,
 		config,
@@ -27,8 +27,8 @@ func NewCache(connectionPool *redis.Pool, config config.RedisConfig) cache.Cache
 
 // Set binds key and its value
 func (r *rd) Set(ctx context.Context, key string, value interface{}) error {
-	err := r.execute(ctx, func(ctx context.Context, conn redis.Conn) error {
-		if _, err := conn.Do("SET", redis.Args{key}.Add(value)...); err != nil {
+	err := r.execute(ctx, func(ctx context.Context, conn redigo.Conn) error {
+		if _, err := conn.Do("SET", redigo.Args{key}.Add(value)...); err != nil {
 			return err
 		}
 
@@ -45,7 +45,7 @@ func (r *rd) Set(ctx context.Context, key string, value interface{}) error {
 // Get returns value by its key from cache
 func (r *rd) Get(ctx context.Context, key string) (interface{}, error) {
 	var value interface{}
-	err := r.execute(ctx, func(ctx context.Context, conn redis.Conn) error {
+	err := r.execute(ctx, func(ctx context.Context, conn redigo.Conn) error {
 		var errEx error
 		value, errEx = conn.Do("GET", key)
 		if errEx != nil {
@@ -64,8 +64,8 @@ func (r *rd) Get(ctx context.Context, key string) (interface{}, error) {
 
 // HashSet binds key and value pair to the hash into cache
 func (r *rd) HashSet(ctx context.Context, hash string, values interface{}) error {
-	err := r.execute(ctx, func(ctx context.Context, conn redis.Conn) error {
-		if _, err := conn.Do("HSET", redis.Args{hash}.AddFlat(values)...); err != nil {
+	err := r.execute(ctx, func(ctx context.Context, conn redigo.Conn) error {
+		if _, err := conn.Do("HSET", redigo.Args{hash}.AddFlat(values)...); err != nil {
 			return err
 		}
 
@@ -82,9 +82,9 @@ func (r *rd) HashSet(ctx context.Context, hash string, values interface{}) error
 // HashGetAll returns a sequence of key-value pairs of the corresponding hash
 func (r *rd) HashGetAll(ctx context.Context, hash string) ([]interface{}, error) {
 	var values []interface{}
-	err := r.execute(ctx, func(ctx context.Context, conn redis.Conn) error {
+	err := r.execute(ctx, func(ctx context.Context, conn redigo.Conn) error {
 		var errEx error
-		values, errEx = redis.Values(conn.Do("HGETALL", hash))
+		values, errEx = redigo.Values(conn.Do("HGETALL", hash))
 		if errEx != nil {
 			return errEx
 		}
@@ -101,7 +101,7 @@ func (r *rd) HashGetAll(ctx context.Context, hash string) ([]interface{}, error)
 
 // Expire sets time to expire key into cache
 func (r *rd) Expire(ctx context.Context, key string, expiration time.Duration) error {
-	err := r.execute(ctx, func(ctx context.Context, conn redis.Conn) error {
+	err := r.execute(ctx, func(ctx context.Context, conn redigo.Conn) error {
 		if _, err := conn.Do("EXPIRE", key, int(expiration.Seconds())); err != nil {
 			return err
 		}
@@ -118,7 +118,7 @@ func (r *rd) Expire(ctx context.Context, key string, expiration time.Duration) e
 
 // Ping tests cache connection
 func (r *rd) Ping(ctx context.Context) error {
-	err := r.execute(ctx, func(ctx context.Context, conn redis.Conn) error {
+	err := r.execute(ctx, func(ctx context.Context, conn redigo.Conn) error {
 		if _, err := conn.Do("PING"); err != nil {
 			return err
 		}
@@ -157,7 +157,7 @@ func (r *rd) execute(ctx context.Context, handler handler) error {
 	return nil
 }
 
-func (r *rd) getConnect(ctx context.Context) (redis.Conn, error) {
+func (r *rd) getConnect(ctx context.Context) (redigo.Conn, error) {
 	getConnTimeoutCtx, cancel := context.WithTimeout(ctx, r.config.ConnectionTimeout())
 	defer cancel()
 
