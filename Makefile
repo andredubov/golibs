@@ -14,6 +14,7 @@ get-deps:
 	go get -u github.com/jackc/pgx/v4
 	go get -u github.com/georgysavva/scany/pgxscan
 	go get -u github.com/pkg/errors
+	go get -u github.com/gomodule/redigo/redis
 	
 gen-mocks:
 	go generate ./...
