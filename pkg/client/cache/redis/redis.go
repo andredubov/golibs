@@ -116,6 +116,24 @@ func (r *rd) Expire(ctx context.Context, key string, expiration time.Duration) e
 	return nil
 }
 
+// Delete a value by its key into cache
+func (r *rd) Delete(ctx context.Context, key string) error {
+	err := r.execute(ctx, func(ctx context.Context, conn redigo.Conn) error {
+		_, err := conn.Do("DEL", key)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // Ping tests cache connection
 func (r *rd) Ping(ctx context.Context) error {
 	err := r.execute(ctx, func(ctx context.Context, conn redigo.Conn) error {
