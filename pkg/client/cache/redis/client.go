@@ -35,7 +35,7 @@ func (r *redisClient) Cache() cache.Cache {
 // Close cache connection
 func (r *redisClient) Close() error {
 	if r.masterCache != nil {
-		r.masterCache.Close()
+		return r.masterCache.Close()
 	}
 
 	return nil
