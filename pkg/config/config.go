@@ -30,6 +30,7 @@ type GRPCConfig interface {
 // HTTPConfig interface
 type HTTPConfig interface {
 	Address() string
+	ReadHeaderTimeout() time.Duration
 }
 
 // PostgresConfig interface
