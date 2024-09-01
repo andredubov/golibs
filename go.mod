@@ -1,6 +1,6 @@
 module github.com/andredubov/golibs
 
-go 1.22.1
+go 1.22.5
 
 require (
 	github.com/georgysavva/scany v1.2.2
