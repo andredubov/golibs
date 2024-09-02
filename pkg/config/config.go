@@ -33,6 +33,11 @@ type HTTPConfig interface {
 	ReadHeaderTimeout() time.Duration
 }
 
+// SwaggerConfig interface
+type SwaggerConfig interface {
+	Address() string
+}
+
 // PostgresConfig interface
 type PostgresConfig interface {
 	DSN() string
